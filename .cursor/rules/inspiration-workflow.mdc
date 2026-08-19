@@ -1,0 +1,15 @@
+---
+description: Lightweight cross-tool workflow for AI inspiration cards
+alwaysApply: true
+---
+
+# Inspiration for Cursor
+
+Read and follow the [canonical core workflow](../../instructions/core-workflow.md) before handling an inspiration.
+
+## Cursor behavior
+
+- Work in the current chat by default.
+- Use one independent card file per idea to isolate context.
+- Do not claim that Cursor automatically creates independent chats or tasks.
+- If external search is unavailable, record that limitation and continue with the card.
