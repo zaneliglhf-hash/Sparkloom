@@ -1,4 +1,4 @@
-# Inspiration for Codex
+# Sparkloom for Codex
 
 Read and follow the [canonical core workflow](instructions/core-workflow.md) before handling an inspiration.
 

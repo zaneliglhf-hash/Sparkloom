@@ -1,4 +1,4 @@
-# Inspiration Core Workflow
+# Sparkloom Core Workflow
 
 ## Purpose
 
