@@ -1,8 +1,10 @@
-# Inspiration
+# Sparkloom
+
+*Weave ideas into action.*
 
 [English](README.md)
 
-Inspiration 是一个跨工具的轻量 AI 工作流灵感工作台。你只需自然描述一个想法，它会先和已有灵感对比，再记录现有方案中最值得复用的部分，并给出一个最小下一步。
+Sparkloom 是一个跨工具的轻量 AI 工作流灵感工作台。你只需自然描述一个想法，它会先和已有灵感对比，再记录现有方案中最值得复用的部分，并给出一个最小下一步。
 
 它以本地 Markdown 项目运行，适用于 Codex、Claude Code 和 Cursor，不需要应用服务器、账号、数据库或固定命令。
 

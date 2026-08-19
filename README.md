@@ -1,8 +1,10 @@
-# Inspiration
+# Sparkloom
+
+*Weave ideas into action.*
 
 [简体中文](README.zh-CN.md)
 
-Inspiration is a lightweight, cross-tool prior-art workspace for AI workflow ideas. Describe an idea naturally, compare it with what you already collected, record the most reusable parts of existing work, and choose one small next step.
+Sparkloom is a lightweight, cross-tool prior-art workspace for AI workflow ideas. Describe an idea naturally, compare it with what you already collected, record the most reusable parts of existing work, and choose one small next step.
 
 It works as a local Markdown project for Codex, Claude Code, and Cursor. There is no application server, account, database, or required command syntax.
 
