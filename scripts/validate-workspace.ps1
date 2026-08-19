@@ -49,6 +49,17 @@ function Require-MarkdownLinkTarget {
     'templates/inspiration-card.zh-CN.md'
 ) | ForEach-Object { Require-File $_ }
 
+Require-Text 'README.md' '(?m)^# Sparkloom$' 'the Sparkloom title'
+Require-Text 'README.md' '(?m)^\*Weave ideas into action\.\*$' 'the Sparkloom tagline'
+Require-Text 'README.zh-CN.md' '(?m)^# Sparkloom$' 'the Sparkloom title'
+Require-Text 'README.zh-CN.md' '(?m)^\*Weave ideas into action\.\*$' 'the Sparkloom tagline'
+Require-Text 'AGENTS.md' '(?m)^# Sparkloom for Codex$' 'the Sparkloom Codex heading'
+Require-Text 'CLAUDE.md' '(?m)^# Sparkloom for Claude Code$' 'the Sparkloom Claude heading'
+Require-Text '.cursor/rules/inspiration-workflow.mdc' '(?m)^# Sparkloom for Cursor$' 'the Sparkloom Cursor heading'
+Require-Text 'instructions/core-workflow.md' '(?m)^# Sparkloom Core Workflow$' 'the Sparkloom workflow heading'
+Require-Text 'instructions/core-workflow.zh-CN.md' '(?m)^# Sparkloom 核心工作流$' 'the Chinese Sparkloom workflow heading'
+Require-Text 'ideas/INDEX.md' '(?m)^# Sparkloom Index / AI 灵感目录$' 'the Sparkloom index heading'
+
 Require-Text 'instructions/core-workflow.md' '## Purpose' 'a purpose section'
 Require-Text 'instructions/core-workflow.md' '## Workflow' 'a workflow section'
 Require-Text 'instructions/core-workflow.md' '## Card requirements' 'card requirements'

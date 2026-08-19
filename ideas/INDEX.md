@@ -1,4 +1,4 @@
-# Inspiration Index / AI 灵感目录
+# Sparkloom Index / AI 灵感目录
 
 每条灵感卡片或历史报告占一行。状态使用：queued / 待处理、active / 进行中、completed / 已完成、paused / 暂停。
 

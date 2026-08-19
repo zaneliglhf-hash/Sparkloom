@@ -1,4 +1,4 @@
-# Inspiration for Claude Code
+# Sparkloom for Claude Code
 
 Read and follow the [canonical core workflow](instructions/core-workflow.md) before handling an inspiration.
 
