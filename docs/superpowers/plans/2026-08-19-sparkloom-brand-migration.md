@@ -35,16 +35,16 @@
 Insert after the required-file loop and before the workflow-section assertions:
 
 ```powershell
-Require-Text 'README.md' '(?m)^# Sparkloom$' 'the Sparkloom title'
-Require-Text 'README.md' '(?m)^\*Weave ideas into action\.\*$' 'the Sparkloom tagline'
-Require-Text 'README.zh-CN.md' '(?m)^# Sparkloom$' 'the Sparkloom title'
-Require-Text 'README.zh-CN.md' '(?m)^\*Weave ideas into action\.\*$' 'the Sparkloom tagline'
-Require-Text 'AGENTS.md' '(?m)^# Sparkloom for Codex$' 'the Sparkloom Codex heading'
-Require-Text 'CLAUDE.md' '(?m)^# Sparkloom for Claude Code$' 'the Sparkloom Claude heading'
-Require-Text '.cursor/rules/inspiration-workflow.mdc' '(?m)^# Sparkloom for Cursor$' 'the Sparkloom Cursor heading'
-Require-Text 'instructions/core-workflow.md' '(?m)^# Sparkloom Core Workflow$' 'the Sparkloom workflow heading'
-Require-Text 'instructions/core-workflow.zh-CN.md' '(?m)^# Sparkloom 核心工作流$' 'the Chinese Sparkloom workflow heading'
-Require-Text 'ideas/INDEX.md' '(?m)^# Sparkloom Index / AI 灵感目录$' 'the Sparkloom index heading'
+Require-Text 'README.md' '(?m)^# Sparkloom\r?$' 'the Sparkloom title'
+Require-Text 'README.md' '(?m)^\*Weave ideas into action\.\*\r?$' 'the Sparkloom tagline'
+Require-Text 'README.zh-CN.md' '(?m)^# Sparkloom\r?$' 'the Sparkloom title'
+Require-Text 'README.zh-CN.md' '(?m)^\*Weave ideas into action\.\*\r?$' 'the Sparkloom tagline'
+Require-Text 'AGENTS.md' '(?m)^# Sparkloom for Codex\r?$' 'the Sparkloom Codex heading'
+Require-Text 'CLAUDE.md' '(?m)^# Sparkloom for Claude Code\r?$' 'the Sparkloom Claude heading'
+Require-Text '.cursor/rules/inspiration-workflow.mdc' '(?m)^# Sparkloom for Cursor\r?$' 'the Sparkloom Cursor heading'
+Require-Text 'instructions/core-workflow.md' '(?m)^# Sparkloom Core Workflow\r?$' 'the Sparkloom workflow heading'
+Require-Text 'instructions/core-workflow.zh-CN.md' '(?m)^# Sparkloom 核心工作流\r?$' 'the Chinese Sparkloom workflow heading'
+Require-Text 'ideas/INDEX.md' '(?m)^# Sparkloom Index / AI 灵感目录\r?$' 'the Sparkloom index heading'
 ```
 
 - [ ] **Step 2: Run the validator and verify the contract fails against the old brand**
