@@ -783,6 +783,7 @@ gh pr create `
     --repo zaneliglhf-hash/Sparkloom `
     --base main `
     --head agent/sparkloom-agent-skill `
+    --draft `
     --title 'Publish Sparkloom as a repository-scoped Agent Skill' `
     --body $sparkloomPrBody
 ```
