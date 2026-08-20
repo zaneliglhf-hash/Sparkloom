@@ -42,6 +42,8 @@ function Require-MarkdownLinkTarget {
     'AGENTS.md',
     'CLAUDE.md',
     '.cursor/rules/inspiration-workflow.mdc',
+    'skills/sparkloom/SKILL.md',
+    'skills/sparkloom/agents/openai.yaml',
     'instructions/core-workflow.md',
     'instructions/core-workflow.zh-CN.md',
     'ideas/INDEX.md',
@@ -60,6 +62,27 @@ Require-Text 'instructions/core-workflow.md' '(?m)^# Sparkloom Core Workflow\r?$
 Require-Text 'instructions/core-workflow.zh-CN.md' '(?m)^# Sparkloom 核心工作流\r?$' 'the Chinese Sparkloom workflow heading'
 Require-Text 'ideas/INDEX.md' '(?m)^# Sparkloom Index / AI 灵感目录\r?$' 'the Sparkloom index heading'
 
+Require-Text 'skills/sparkloom/SKILL.md' '(?m)^name: sparkloom\r?$' 'the sparkloom skill name'
+Require-Text 'skills/sparkloom/SKILL.md' '(?m)^license: MIT\r?$' 'the MIT skill license'
+Require-Text 'skills/sparkloom/SKILL.md' '(?m)^## Repository-only scope\r?$' 'the repository-only scope guard'
+Require-Text 'skills/sparkloom/SKILL.md' 'stop before creating or modifying files' 'the fail-closed scope behavior'
+Require-MarkdownLinkTarget 'skills/sparkloom/SKILL.md' '../../instructions/core-workflow.md' 'the canonical core workflow'
+
+@(
+    'README.md',
+    'instructions/core-workflow.md',
+    'ideas/INDEX.md',
+    'templates/inspiration-card.en.md',
+    'templates/inspiration-card.zh-CN.md'
+) | ForEach-Object {
+    Require-Text 'skills/sparkloom/SKILL.md' ([regex]::Escape($_)) "the repository marker $_"
+}
+
+Require-Text 'skills/sparkloom/agents/openai.yaml' '(?m)^  display_name: "Sparkloom"\r?$' 'the Sparkloom display name'
+Require-Text 'skills/sparkloom/agents/openai.yaml' '(?m)^  short_description: "Weave ideas into action in Sparkloom"\r?$' 'the Sparkloom skill summary'
+Require-Text 'skills/sparkloom/agents/openai.yaml' '(?m)^  default_prompt: "Use \$sparkloom ' 'a default prompt that invokes the skill'
+Require-Text 'skills/sparkloom/agents/openai.yaml' '(?m)^  allow_implicit_invocation: true\r?$' 'implicit skill invocation'
+
 Require-Text 'instructions/core-workflow.md' '## Purpose' 'a purpose section'
 Require-Text 'instructions/core-workflow.md' '## Workflow' 'a workflow section'
 Require-Text 'instructions/core-workflow.md' '## Card requirements' 'card requirements'
@@ -74,6 +97,15 @@ Require-Text 'instructions/core-workflow.zh-CN.md' '## 降级' 'Chinese fallback
 Require-MarkdownLinkTarget 'AGENTS.md' 'instructions/core-workflow.md' 'the canonical core workflow'
 Require-MarkdownLinkTarget 'CLAUDE.md' 'instructions/core-workflow.md' 'the canonical core workflow'
 Require-MarkdownLinkTarget '.cursor/rules/inspiration-workflow.mdc' '../../instructions/core-workflow.md' 'the canonical core workflow'
+Require-MarkdownLinkTarget 'AGENTS.md' 'skills/sparkloom/SKILL.md' 'the Sparkloom Skill'
+Require-MarkdownLinkTarget 'CLAUDE.md' 'skills/sparkloom/SKILL.md' 'the Sparkloom Skill'
+Require-MarkdownLinkTarget '.cursor/rules/inspiration-workflow.mdc' '../../skills/sparkloom/SKILL.md' 'the Sparkloom Skill'
+
+$projectInstallCommand = 'gh skill install zaneliglhf-hash/Sparkloom sparkloom --agent codex --scope project'
+Require-Text 'README.md' ([regex]::Escape($projectInstallCommand)) 'the project-scoped Codex Skill install command'
+Require-Text 'README.zh-CN.md' ([regex]::Escape($projectInstallCommand)) 'the project-scoped Codex Skill install command'
+Require-Text 'README.md' 'does not turn that repository into a Sparkloom workspace' 'the repository-only Skill warning'
+Require-Text 'README.zh-CN.md' '不会把该仓库变成 Sparkloom 工作区' 'the repository-only Skill warning'
 Require-Text 'AGENTS.md' '\[INSPIRATION_CARD_TASK\]' 'the Codex recursion-prevention marker'
 
 @(
@@ -124,6 +156,8 @@ if (Test-Path -LiteralPath $indexPath -PathType Leaf) {
 @(
     'AGENTS.md',
     'CLAUDE.md',
+    'skills/sparkloom/SKILL.md',
+    'skills/sparkloom/agents/openai.yaml',
     'README.md',
     'README.zh-CN.md',
     'instructions/core-workflow.md',
