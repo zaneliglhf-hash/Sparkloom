@@ -22,7 +22,9 @@ If any marker is missing, stop before creating or modifying files. Explain that 
 
 ## Load the workflow
 
-After the scope check passes, read the [canonical core workflow](../../instructions/core-workflow.md) completely and treat it as the normative shared behavior.
+After the scope check passes, read `instructions/core-workflow.md` from the active project root identified by the guard, read it completely, and treat it as the normative shared behavior.
+
+Do not resolve that path relative to the installed Skill directory. Project-scope installations may place this Skill under an agent-specific directory such as `.agents/skills/sparkloom/`.
 
 Also follow platform-specific behavior already supplied by the active adapter. Do not load `AGENTS.md`, `CLAUDE.md`, or the Cursor rule from this Skill; routing back into an adapter can recurse.
 

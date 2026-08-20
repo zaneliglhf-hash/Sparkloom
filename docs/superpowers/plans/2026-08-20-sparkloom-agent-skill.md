@@ -14,6 +14,7 @@
 - The Skill is valid only in the Sparkloom repository; it must not scaffold or manage an ideas workspace in any unrelated repository.
 - The exact required workspace markers are `README.md`, `instructions/core-workflow.md`, `ideas/INDEX.md`, `templates/inspiration-card.en.md`, and `templates/inspiration-card.zh-CN.md`.
 - `instructions/core-workflow.md` remains the single normative workflow. Do not copy that workflow or either card template into the Skill.
+- Resolve `instructions/core-workflow.md` from the active project root identified by the guard, never relative to the installed Skill directory; a project-scope install may live under an agent-specific directory such as `.agents/skills/sparkloom/`.
 - Keep `AGENTS.md`, `CLAUDE.md`, and `.cursor/rules/inspiration-workflow.mdc`; each must route to the Skill and retain its platform-specific behavior.
 - The Skill contains only `SKILL.md` and `agents/openai.yaml`; do not add `scripts/`, `references/`, `assets/`, examples, a Skill-local README, or generated scaffolding files.
 - Automatic invocation remains enabled with `policy.allow_implicit_invocation: true`.
@@ -64,7 +65,8 @@ Require-Text 'skills/sparkloom/SKILL.md' '(?m)^name: sparkloom\r?$' 'the sparklo
 Require-Text 'skills/sparkloom/SKILL.md' '(?m)^license: MIT\r?$' 'the MIT skill license'
 Require-Text 'skills/sparkloom/SKILL.md' '(?m)^## Repository-only scope\r?$' 'the repository-only scope guard'
 Require-Text 'skills/sparkloom/SKILL.md' 'stop before creating or modifying files' 'the fail-closed scope behavior'
-Require-MarkdownLinkTarget 'skills/sparkloom/SKILL.md' '../../instructions/core-workflow.md' 'the canonical core workflow'
+Require-Text 'skills/sparkloom/SKILL.md' 'read `instructions/core-workflow.md` from the active project root identified by the guard' 'project-root workflow resolution'
+Require-NotText 'skills/sparkloom/SKILL.md' '../../instructions/core-workflow.md' 'the installed-Skill-relative workflow path'
 
 @(
     'README.md',
@@ -140,7 +142,7 @@ Expected: `git diff --check` is silent and the commit contains only `scripts/val
 
 **Interfaces:**
 
-- Consumes: The exact marker paths in Task 1 and the canonical workflow at `instructions/core-workflow.md`.
+- Consumes: The exact marker paths in Task 1 and the canonical workflow at `instructions/core-workflow.md`, resolved from the active project root rather than from the installed Skill directory.
 - Produces: A discoverable Skill named `sparkloom` whose UI metadata, scope guard, workflow route, and authorization boundaries are consumed by adapters, validators, and `gh skill publish`.
 
 - [ ] **Step 1: Confirm the Skill directory does not already exist**
@@ -200,7 +202,9 @@ If any marker is missing, stop before creating or modifying files. Explain that 
 
 ## Load the workflow
 
-After the scope check passes, read the [canonical core workflow](../../instructions/core-workflow.md) completely and treat it as the normative shared behavior.
+After the scope check passes, read `instructions/core-workflow.md` from the active project root identified by the guard, read it completely, and treat it as the normative shared behavior.
+
+Do not resolve that path relative to the installed Skill directory. Project-scope installations may place this Skill under an agent-specific directory such as `.agents/skills/sparkloom/`.
 
 Also follow platform-specific behavior already supplied by the active adapter. Do not load `AGENTS.md`, `CLAUDE.md`, or the Cursor rule from this Skill; routing back into an adapter can recurse.
 

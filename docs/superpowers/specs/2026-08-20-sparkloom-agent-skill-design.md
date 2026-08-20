@@ -10,7 +10,7 @@ Package Sparkloom as one discoverable Agent Skill named `sparkloom`, keep it res
 
 Add a repository-owned Skill at `skills/sparkloom/SKILL.md`. The Skill is the common entry point for Agent Skills discovery, while the existing root workflow, templates, index, and idea cards remain in their current locations.
 
-The Skill does not duplicate the core workflow or templates. It verifies that the active project is Sparkloom, then reads the existing canonical workflow before handling an idea. Platform adapters load the Skill and supply their platform-specific behavior separately, so the Skill never routes back into an adapter. This preserves one maintained copy of each rule, avoids recursive loading, and keeps current paths stable.
+The Skill does not duplicate the core workflow or templates. It verifies that the active project is Sparkloom, then reads the existing canonical workflow from the active project root before handling an idea. It must not resolve that workflow path relative to the installed Skill directory because a project-scope install may place the Skill in an agent-specific directory such as `.agents/skills/sparkloom/`. Platform adapters load the Skill and supply their platform-specific behavior separately, so the Skill never routes back into an adapter. This preserves one maintained copy of each rule, avoids recursive loading, and keeps current paths stable.
 
 ## Skill structure
 
@@ -26,7 +26,7 @@ skills/
 
 - YAML frontmatter with `name: sparkloom`, a discriminating description, and `license: MIT`;
 - the repository-only scope guard;
-- routing to `instructions/core-workflow.md` while respecting the already-loaded platform adapter;
+- project-root resolution of `instructions/core-workflow.md`, never Skill-directory-relative resolution, while respecting the already-loaded platform adapter;
 - the non-obvious invariants for relation checks, reusable-content capture, lightweight cards, and index updates;
 - authorization boundaries that prevent publishing, contacting third parties, or other external mutations without a direct user request.
 
@@ -58,7 +58,7 @@ Each adapter first points to `skills/sparkloom/SKILL.md`. Platform-specific beha
 
 1. Agent Skills discovery selects `sparkloom` for requests about capturing, comparing, or advancing an AI-workflow idea in this repository.
 2. The Skill checks the repository markers.
-3. The Skill reads `instructions/core-workflow.md` and applies any platform-specific behavior already supplied by the active adapter.
+3. The Skill reads `instructions/core-workflow.md` from the active project root identified by the guard and applies any platform-specific behavior already supplied by the active adapter.
 4. The existing relation check, optional research, reuse capture, card creation, and index update workflow runs unchanged.
 5. Existing authorization boundaries continue to apply to searches, publication, communication, and other external actions.
 
@@ -74,7 +74,7 @@ The documentation also states that installing it into another repository does no
 
 ## Validation
 
-- Extend `scripts/validate-workspace.ps1` to require the Skill files, validate the project-scope guard text, and confirm that all three adapters route to `skills/sparkloom/SKILL.md`.
+- Extend `scripts/validate-workspace.ps1` to require the Skill files, validate the project-scope guard text, require project-root workflow resolution, forbid the installed-Skill-relative `../../instructions/core-workflow.md` path, and confirm that all three adapters route to `skills/sparkloom/SKILL.md`.
 - Run the Skill Creator `quick_validate.py` validator against `skills/sparkloom`.
 - Run `gh skill publish --dry-run` against the repository.
 - Run a repository-local behavior check that confirms the marker guard accepts Sparkloom and rejects a temporary non-Sparkloom directory without creating files.

@@ -66,7 +66,8 @@ Require-Text 'skills/sparkloom/SKILL.md' '(?m)^name: sparkloom\r?$' 'the sparklo
 Require-Text 'skills/sparkloom/SKILL.md' '(?m)^license: MIT\r?$' 'the MIT skill license'
 Require-Text 'skills/sparkloom/SKILL.md' '(?m)^## Repository-only scope\r?$' 'the repository-only scope guard'
 Require-Text 'skills/sparkloom/SKILL.md' 'stop before creating or modifying files' 'the fail-closed scope behavior'
-Require-MarkdownLinkTarget 'skills/sparkloom/SKILL.md' '../../instructions/core-workflow.md' 'the canonical core workflow'
+Require-Text 'skills/sparkloom/SKILL.md' 'read `instructions/core-workflow.md` from the active project root identified by the guard' 'project-root workflow resolution'
+Require-NotText 'skills/sparkloom/SKILL.md' '../../instructions/core-workflow.md' 'the installed-Skill-relative workflow path'
 
 @(
     'README.md',
