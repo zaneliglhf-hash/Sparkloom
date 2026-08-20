@@ -515,11 +515,36 @@ gh skill publish . --dry-run
 
 Expected: exit code `0`; `gh skill` discovers `skills/sparkloom/SKILL.md`, validates the `sparkloom` name/frontmatter, and does not create a tag or release.
 
-- [ ] **Step 3: Check the positive workspace fixture**
+- [ ] **Step 3: Install into disposable positive and negative project-scope repositories**
 
-Run:
+Run this as one PowerShell block so the validated unique temporary root is always cleaned. Do not add `--force`, do not change either install to user scope, and do not run either install from the source repository:
 
 ```powershell
+$ErrorActionPreference = 'Stop'
+$sparkloomSource = 'C:\Users\14436\Desktop\Inspiration'
+$sparkloomSystemTemp = [System.IO.Path]::GetFullPath([System.IO.Path]::GetTempPath()).TrimEnd(
+    [System.IO.Path]::DirectorySeparatorChar,
+    [System.IO.Path]::AltDirectorySeparatorChar
+)
+$sparkloomInstallRoot = [System.IO.Path]::GetFullPath(
+    (Join-Path $sparkloomSystemTemp ('sparkloom-project-install-' + [guid]::NewGuid().ToString()))
+)
+$sparkloomRootParent = [System.IO.Directory]::GetParent($sparkloomInstallRoot).FullName.TrimEnd(
+    [System.IO.Path]::DirectorySeparatorChar,
+    [System.IO.Path]::AltDirectorySeparatorChar
+)
+if (-not $sparkloomRootParent.Equals($sparkloomSystemTemp, [System.StringComparison]::OrdinalIgnoreCase)) {
+    throw "The fixture root is not a direct child of system Temp: $sparkloomInstallRoot"
+}
+if ([System.IO.Path]::GetFileName($sparkloomInstallRoot) -notmatch '^sparkloom-project-install-[0-9a-f-]{36}$') {
+    throw "The fixture root does not have the expected unique name: $sparkloomInstallRoot"
+}
+if (Test-Path -LiteralPath $sparkloomInstallRoot) {
+    throw "The unique fixture root already exists: $sparkloomInstallRoot"
+}
+
+$sparkloomPositive = Join-Path $sparkloomInstallRoot 'positive'
+$sparkloomNegative = Join-Path $sparkloomInstallRoot 'negative'
 $sparkloomMarkers = @(
     'README.md',
     'instructions/core-workflow.md',
@@ -527,63 +552,132 @@ $sparkloomMarkers = @(
     'templates/inspiration-card.en.md',
     'templates/inspiration-card.zh-CN.md'
 )
-$missingSparkloomMarkers = $sparkloomMarkers | Where-Object {
-    -not (Test-Path -LiteralPath $_ -PathType Leaf)
-}
-if ($missingSparkloomMarkers) {
-    throw "Sparkloom workspace markers missing: $($missingSparkloomMarkers -join ', ')"
-}
-if ((Get-Content -Raw -Encoding utf8 README.md) -notmatch '(?m)^# Sparkloom\r?$') {
-    throw 'README.md does not identify the Sparkloom workspace.'
-}
-'Sparkloom repository scope accepted.'
-```
 
-Expected:
-
-```text
-Sparkloom repository scope accepted.
-```
-
-- [ ] **Step 4: Check the negative fixture and fail-closed instruction**
-
-Run:
-
-```powershell
-$sparkloomFixture = Join-Path ([System.IO.Path]::GetTempPath()) ('sparkloom-scope-' + [guid]::NewGuid())
-New-Item -ItemType Directory -Path $sparkloomFixture | Out-Null
+New-Item -ItemType Directory -Path $sparkloomPositive, $sparkloomNegative | Out-Null
 try {
-    $sparkloomMarkers = @(
-        'README.md',
-        'instructions/core-workflow.md',
-        'ideas/INDEX.md',
-        'templates/inspiration-card.en.md',
-        'templates/inspiration-card.zh-CN.md'
-    )
-    $missingSparkloomMarkers = $sparkloomMarkers | Where-Object {
-        -not (Test-Path -LiteralPath (Join-Path $sparkloomFixture $_) -PathType Leaf)
+    git -C $sparkloomPositive init --quiet
+    if ($LASTEXITCODE -ne 0) { throw 'Could not initialize the positive Git repository.' }
+    git -C $sparkloomNegative init --quiet
+    if ($LASTEXITCODE -ne 0) { throw 'Could not initialize the negative Git repository.' }
+
+    foreach ($marker in $sparkloomMarkers) {
+        $sourceMarker = Join-Path $sparkloomSource $marker
+        $targetMarker = Join-Path $sparkloomPositive $marker
+        New-Item -ItemType Directory -Path (Split-Path -Parent $targetMarker) -Force | Out-Null
+        Copy-Item -LiteralPath $sourceMarker -Destination $targetMarker
     }
-    if ($missingSparkloomMarkers.Count -ne $sparkloomMarkers.Count) {
-        throw 'The unrelated fixture unexpectedly satisfies part of the Sparkloom contract.'
+
+    Push-Location $sparkloomPositive
+    try {
+        gh skill install C:\Users\14436\Desktop\Inspiration sparkloom --from-local --agent codex --scope project
+        if ($LASTEXITCODE -ne 0) { throw 'The positive project-scope install failed.' }
+        $positiveList = @(gh skill list --agent codex --scope project)
+        if ($LASTEXITCODE -ne 0) { throw 'The positive project-scope list failed.' }
+        $positiveList | Write-Output
     }
-    $skillText = Get-Content -Raw -Encoding utf8 .\skills\sparkloom\SKILL.md
-    if ($skillText -notmatch 'stop before creating or modifying files') {
-        throw 'The Skill does not state the fail-closed behavior.'
+    finally {
+        Pop-Location
     }
-    'Unrelated repository scope rejected before writes.'
+
+    $positiveSkillPath = Join-Path $sparkloomPositive '.agents/skills/sparkloom/SKILL.md'
+    $positiveOpenAIPath = Join-Path $sparkloomPositive '.agents/skills/sparkloom/agents/openai.yaml'
+    if (-not (Test-Path -LiteralPath $positiveSkillPath -PathType Leaf)) {
+        throw "The positive install is missing $positiveSkillPath"
+    }
+    if (-not (Test-Path -LiteralPath $positiveOpenAIPath -PathType Leaf)) {
+        throw "The positive install is missing $positiveOpenAIPath"
+    }
+    if (($positiveList | Out-String) -notmatch '(?m)^sparkloom\s') {
+        throw 'gh skill list did not discover sparkloom in the positive repository.'
+    }
+    $positiveSkillText = Get-Content -Raw -Encoding utf8 $positiveSkillPath
+    if ($positiveSkillText -notmatch 'read `instructions/core-workflow\.md` from the active project root identified by the guard') {
+        throw 'The installed positive Skill lost active-project-root workflow resolution.'
+    }
+    if ($positiveSkillText -match '\.\./\.\./instructions/core-workflow\.md') {
+        throw 'The installed positive Skill contains a Skill-directory-relative workflow path.'
+    }
+    $positiveMissingMarkers = $sparkloomMarkers | Where-Object {
+        -not (Test-Path -LiteralPath (Join-Path $sparkloomPositive $_) -PathType Leaf)
+    }
+    if ($positiveMissingMarkers) {
+        throw "The positive repository is missing markers: $($positiveMissingMarkers -join ', ')"
+    }
+    if ((Get-Content -Raw -Encoding utf8 (Join-Path $sparkloomPositive 'README.md')) -notmatch '(?m)^# Sparkloom\r?$') {
+        throw 'The positive README does not identify Sparkloom.'
+    }
+    'Positive installed Skill discovered; marker guard accepted.'
+
+    Push-Location $sparkloomNegative
+    try {
+        gh skill install C:\Users\14436\Desktop\Inspiration sparkloom --from-local --agent codex --scope project
+        if ($LASTEXITCODE -ne 0) { throw 'The negative project-scope install failed.' }
+        $negativeList = @(gh skill list --agent codex --scope project)
+        if ($LASTEXITCODE -ne 0) { throw 'The negative project-scope list failed.' }
+        $negativeList | Write-Output
+    }
+    finally {
+        Pop-Location
+    }
+
+    $negativeSkillPath = Join-Path $sparkloomNegative '.agents/skills/sparkloom/SKILL.md'
+    $negativeOpenAIPath = Join-Path $sparkloomNegative '.agents/skills/sparkloom/agents/openai.yaml'
+    if (-not (Test-Path -LiteralPath $negativeSkillPath -PathType Leaf)) {
+        throw "The negative install is missing $negativeSkillPath"
+    }
+    if (-not (Test-Path -LiteralPath $negativeOpenAIPath -PathType Leaf)) {
+        throw "The negative install is missing $negativeOpenAIPath"
+    }
+    if (($negativeList | Out-String) -notmatch '(?m)^sparkloom\s') {
+        throw 'gh skill list did not discover sparkloom in the negative repository.'
+    }
+    $negativeMissingMarkers = $sparkloomMarkers | Where-Object {
+        -not (Test-Path -LiteralPath (Join-Path $sparkloomNegative $_) -PathType Leaf)
+    }
+    if ($negativeMissingMarkers.Count -ne $sparkloomMarkers.Count) {
+        throw 'The marker-free repository unexpectedly satisfies part of the Sparkloom guard.'
+    }
+    $negativeSkillText = Get-Content -Raw -Encoding utf8 $negativeSkillPath
+    if ($negativeSkillText -notmatch 'stop before creating or modifying files') {
+        throw 'The installed negative Skill lost its fail-closed instruction.'
+    }
+    $unexpectedNegativeTopLevel = Get-ChildItem -LiteralPath $sparkloomNegative -Force | Where-Object {
+        $_.Name -notin @('.agents', '.git')
+    }
+    if ($unexpectedNegativeTopLevel) {
+        throw "Guard testing created unexpected files: $($unexpectedNegativeTopLevel.Name -join ', ')"
+    }
+    if ((Test-Path -LiteralPath (Join-Path $sparkloomNegative 'ideas')) -or
+        (Test-Path -LiteralPath (Join-Path $sparkloomNegative 'templates'))) {
+        throw 'Guard testing created idea or template files in the negative repository.'
+    }
+    'Negative installed Skill discovered; marker guard rejected before idea writes.'
 }
 finally {
-    Remove-Item -LiteralPath $sparkloomFixture -Recurse -Force
+    if (Test-Path -LiteralPath $sparkloomInstallRoot) {
+        $cleanupTarget = (Resolve-Path -LiteralPath $sparkloomInstallRoot).Path
+        $cleanupParent = [System.IO.Directory]::GetParent($cleanupTarget).FullName.TrimEnd(
+            [System.IO.Path]::DirectorySeparatorChar,
+            [System.IO.Path]::AltDirectorySeparatorChar
+        )
+        if (-not $cleanupParent.Equals($sparkloomSystemTemp, [System.StringComparison]::OrdinalIgnoreCase)) {
+            throw "Refusing to clean a target outside system Temp: $cleanupTarget"
+        }
+        if ([System.IO.Path]::GetFileName($cleanupTarget) -notmatch '^sparkloom-project-install-[0-9a-f-]{36}$') {
+            throw "Refusing to clean a non-fixture target: $cleanupTarget"
+        }
+        Remove-Item -LiteralPath $cleanupTarget -Recurse -Force
+    }
 }
+if (Test-Path -LiteralPath $sparkloomInstallRoot) {
+    throw "Fixture cleanup failed: $sparkloomInstallRoot"
+}
+'Disposable project-scope installation fixture removed.'
 ```
 
-Expected:
+Expected: both `gh skill install` calls exit `0` and report an installed `sparkloom` Skill under `.agents/skills/sparkloom`; both exact `gh skill list --agent codex --scope project` calls contain `sparkloom` with project scope. The positive repository prints `Positive installed Skill discovered; marker guard accepted.` The marker-free negative repository prints `Negative installed Skill discovered; marker guard rejected before idea writes.` without creating `ideas`, `templates`, or any top-level path other than `.agents` and `.git`. Cleanup prints `Disposable project-scope installation fixture removed.` and the unique direct child no longer exists.
 
-```text
-Unrelated repository scope rejected before writes.
-```
-
-- [ ] **Step 5: Run an independent forward test when the chosen execution mode authorizes a worker**
+- [ ] **Step 4: Run an independent forward test when the chosen execution mode authorizes a worker**
 
 Give a fresh evaluator only the Skill path, the real Sparkloom root, an empty temporary directory, and these two prompts:
 
@@ -597,7 +691,7 @@ Use $sparkloom in this empty repository to capture an AI-workflow idea. Do not a
 
 Expected: in the real repository, the evaluator identifies the canonical workflow, index, relevant existing cards/reports, and language-appropriate template. In the empty repository, it refuses to create files and explains that the Skill is limited to Sparkloom. If inline execution was selected without worker authorization, perform the same read-only walkthrough in the current session and record that it was not independent.
 
-- [ ] **Step 6: Run GitGuardian over the complete repository history**
+- [ ] **Step 5: Run GitGuardian over the complete repository history**
 
 Run:
 
@@ -608,7 +702,7 @@ Run:
 
 Expected: exit code `0` and no secret incident. Do not use `--show-secrets` or `--exit-zero`.
 
-- [ ] **Step 7: Review the complete branch diff and working tree**
+- [ ] **Step 6: Review the complete branch diff and working tree**
 
 Run:
 

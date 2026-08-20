@@ -78,6 +78,7 @@ The documentation also states that installing it into another repository does no
 - Run the Skill Creator `quick_validate.py` validator against `skills/sparkloom`.
 - Run `gh skill publish --dry-run` against the repository.
 - Run a repository-local behavior check that confirms the marker guard accepts Sparkloom and rejects a temporary non-Sparkloom directory without creating files.
+- In a disposable direct child of the resolved system temporary directory, initialize positive and negative Git repositories and install the local Skill into each with `gh skill install C:\Users\14436\Desktop\Inspiration sparkloom --from-local --agent codex --scope project`. Verify the real `.agents/skills/sparkloom/` project-scope layout and `gh skill list` discovery in both repositories, then prove that the installed Skill resolves the canonical workflow from the active project root, accepts the copied Sparkloom markers in the positive repository, and rejects idea writes without creating workspace files in the marker-free negative repository. Validate the cleanup target before recursively removing only that unique temporary root.
 - Scan every changed file with GitGuardian without displaying secret values.
 - Verify the branch diff, pull request checks, and final `main` state.
 
