@@ -1,6 +1,6 @@
 # Sparkloom for Claude Code
 
-Read and follow the [canonical core workflow](instructions/core-workflow.md) before handling an inspiration.
+Read and follow the repository Skill at [skills/sparkloom/SKILL.md](skills/sparkloom/SKILL.md), then apply the Claude Code behavior below. The Skill loads the [canonical core workflow](instructions/core-workflow.md).
 
 ## Claude Code behavior
 

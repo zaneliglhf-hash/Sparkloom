@@ -8,6 +8,16 @@ Sparkloom 是一个跨工具的轻量 AI 工作流灵感工作台。你只需自
 
 它以本地 Markdown 项目运行，适用于 Codex、Claude Code 和 Cursor，不需要应用服务器、账号、数据库或固定命令。
 
+## 安装 Agent Skill
+
+`sparkloom` Agent Skill 只适用于本仓库。请在 Sparkloom 仓库内以项目范围为 Codex 安装：
+
+```powershell
+gh skill install zaneliglhf-hash/Sparkloom sparkloom --agent codex --scope project
+```
+
+把这个 Skill 安装到其他仓库，不会把该仓库变成 Sparkloom 工作区。如果缺少 Sparkloom 的工作流、目录或模板，Skill 会在写入文件前停止。
+
 ## 每条灵感会得到什么
 
 每条新灵感只生成一张简短卡片，记录：

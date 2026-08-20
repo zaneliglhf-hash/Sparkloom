@@ -8,6 +8,16 @@ Sparkloom is a lightweight, cross-tool prior-art workspace for AI workflow ideas
 
 It works as a local Markdown project for Codex, Claude Code, and Cursor. There is no application server, account, database, or required command syntax.
 
+## Install the Agent Skill
+
+The `sparkloom` Agent Skill is specific to this repository. From the Sparkloom repository, install it for Codex at project scope:
+
+```powershell
+gh skill install zaneliglhf-hash/Sparkloom sparkloom --agent codex --scope project
+```
+
+Installing this Skill into another repository does not turn that repository into a Sparkloom workspace. The Skill stops before writing files unless Sparkloom's required workflow, index, and templates are present.
+
 ## What you get
 
 Each new idea becomes one short card that captures:

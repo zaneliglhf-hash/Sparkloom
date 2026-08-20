@@ -1,0 +1,6 @@
+interface:
+  display_name: "Sparkloom"
+  short_description: "Weave ideas into action in Sparkloom"
+  default_prompt: "Use $sparkloom to compare this AI-workflow idea with the Sparkloom workspace and create its next lightweight card."
+policy:
+  allow_implicit_invocation: true
